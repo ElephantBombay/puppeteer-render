@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 4000; /// We use env variables for the port bec
 
 app.get("/", (req, res) => {
   //   console.log("test");
-  res.send("Render Puppeteer is up an running");
+  res.send("Render Puppeteer is up and running");
 });
 
 app.get("/scrape", (req, res) => {
