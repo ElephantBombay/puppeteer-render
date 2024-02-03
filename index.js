@@ -14,5 +14,5 @@ app.get("/scrape", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log("Listening on port 4000. See localhost:4000");
+  console.log("Listening on port 4000. See http://localhost:4000");
 });
