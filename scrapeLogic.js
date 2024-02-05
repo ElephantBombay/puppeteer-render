@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer");
 
-const scrapeLogic = async (res) => {
+const scrapeLogic = async (target, res) => {
   const browser = await puppeteer.launch({
     headless: "new",
     // headless: false, // To make sure the browser opens, set to False
@@ -25,9 +25,12 @@ const scrapeLogic = async (res) => {
     // let url = "https://bot.sannysoft.com/";
     // let url = "https://www.trustpilot.com/review/hubspot.com";
     // let url = "https://www.trustpilot.com/review/rentmarketplace.com";
-    let url = "https://www.trustpilot.com/review/www.rentaplacenow.com";
+    // let url = "https://www.trustpilot.com/review/www.rentaplacenow.com";
     // let url = "https://www.trustpilot.com/review/www.miel-paris.com";
     // let url = "https://www.trustpilot.com/review/wwwasdfsdf.com";
+    let url = `https://www.trustpilot.com/review/${target}`;
+    console.log(url);
+
     await page.goto(url, {
       waitUntil: "load",
     });
@@ -53,39 +56,21 @@ const scrapeLogic = async (res) => {
 
       isBtnDisabled = isDisabled;
       if (!isDisabled) {
-        url = await nextSelector?.evaluate((el) => el.href);
-        await page.goto(url, {
+        let nextPage = await nextSelector?.evaluate((el) => el.href);
+        await page.goto(nextPage, {
           waitUntil: "load",
         });
       }
     }
-    const data = { reviews, count: reviews.length };
+    const data = { reviews, url: url, count: reviews.length };
 
-    // // Set screen size
-    // await page.setViewport({ width: 1080, height: 1024 });
-
-    // // Type into search box
-    // await page.type(".devsite-search-field", "automate beyond recorder");
-
-    // // Wait and click on first result
-    // const searchResultSelector = ".devsite-result-item-link";
-    // await page.waitForSelector(searchResultSelector);
-    // await page.click(searchResultSelector);
-
-    // // Locate the full title with a unique string
-    // const textSelector = await page.waitForSelector(
-    //   "text/Customize and automate"
-    // );
-    // const fullTitle = await textSelector?.evaluate((el) => el.textContent);
-
-    // Print the full title
     console.log(data);
 
     // res.send(fullTitle);
     res.json({ data: data });
   } catch (error) {
     console.log(error);
-    res.send(`Something went wrong:${error}`);
+    res.status(400).json({ message: error });
   } finally {
     await browser.close();
   }
@@ -221,3 +206,6 @@ async function getPageReviews(page, pageReviews) {
 }
 
 module.exports = { scrapeLogic };
+
+////Setup
+// Based on https://www.youtube.com/watch?v=6cm6G78ZDmM&list=WL&index=2
