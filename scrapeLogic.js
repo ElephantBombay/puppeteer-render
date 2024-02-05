@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 const scrapeLogic = async (target, res) => {
   const browser = await puppeteer.launch({
     headless: "new",
-    headless: false, // To make sure the browser opens, set to False
+    // headless: false, // To make sure the browser opens, set to False
     defaultViewport: false, // for the browser size to be full screen
     // slowMo: 5,
     args: [
