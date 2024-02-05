@@ -3,7 +3,7 @@ const puppeteer = require("puppeteer");
 const scrapeLogic = async (target, res) => {
   const browser = await puppeteer.launch({
     headless: "new",
-    // headless: false, // To make sure the browser opens, set to False
+    headless: false, // To make sure the browser opens, set to False
     defaultViewport: false, // for the browser size to be full screen
     // slowMo: 5,
     args: [
@@ -34,6 +34,9 @@ const scrapeLogic = async (target, res) => {
     await page.goto(url, {
       waitUntil: "load",
     });
+
+    const htmlContent = await page.content();
+    console.log(htmlContent);
 
     let isBtnDisabled = false;
     let reviews = [];
@@ -72,7 +75,7 @@ const scrapeLogic = async (target, res) => {
     // res.status(400).json({ data: error });
     callback(error);
   } finally {
-    await browser.close();
+    // await browser.close();
   }
 };
 
