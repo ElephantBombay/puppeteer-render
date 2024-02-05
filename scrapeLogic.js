@@ -64,13 +64,13 @@ const scrapeLogic = async (target, res) => {
     }
     const data = { reviews, url: url, count: reviews.length };
 
-    console.log(data);
-
-    // res.send(fullTitle);
-    res.json({ data: data });
+    // console.log(data);
+    // res.json({ data: data });
+    callback(data);
   } catch (error) {
-    console.log(error);
-    res.status(400).json({ message: error });
+    // console.log(error);
+    // res.status(400).json({ data: error });
+    callback(error);
   } finally {
     await browser.close();
   }
@@ -204,8 +204,20 @@ async function getPageReviews(page, pageReviews) {
   // console.log(pageReviews);
   return pageReviews;
 }
+function callback(data) {
+  var requestOptions = {
+    method: "POST",
+    headers: { "Content-type": "application/json" },
+    body: JSON.stringify({ data: data }),
+  };
+
+  fetch(
+    "https://canvasworkbench.bubbleapps.io/version-test/api/1.1/wf/trustpilot_webhook",
+    requestOptions
+  )
+    .then((response) => response.text())
+    .then((result) => console.log(result))
+    .catch((error) => console.log("error", error));
+}
 
 module.exports = { scrapeLogic };
-
-////Setup
-// Based on https://www.youtube.com/watch?v=6cm6G78ZDmM&list=WL&index=2

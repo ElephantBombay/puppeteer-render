@@ -6,17 +6,13 @@ const { scrapeLogic } = require("./scrapeLogic"); // To destructure {}, it means
 const PORT = process.env.PORT || 4000; /// We use env variables for the port because we wont know what the port is when deployed
 
 app.get("/", (req, res) => {
-  //   console.log("test");
-  res.send("Render Puppeteer is up and running");
-});
-
-app.get("/scrape", (req, res) => {
-  scrapeLogic(res);
+  res.send("ScraperBot v1.0 is up and running.");
 });
 
 app.post("/trustpilot", (req, res) => {
   try {
     const target = new URL(req.query.target);
+    res.json({ message: "sent" });
     scrapeLogic(target.host, res);
   } catch (error) {
     res.status(400).json({ message: error });
