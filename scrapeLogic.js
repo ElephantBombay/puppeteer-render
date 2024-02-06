@@ -32,7 +32,8 @@ const scrapeLogic = async (target) => {
     console.log(url);
 
     await page.goto(url, {
-      waitUntil: "load",
+      waitUntil: "networkidle2",
+      timeout: 60000,
     });
 
     htmlContent = await page.content();
@@ -60,7 +61,7 @@ const scrapeLogic = async (target) => {
       if (!isDisabled) {
         let nextPage = await nextSelector?.evaluate((el) => el.href);
         await page.goto(nextPage, {
-          waitUntil: "load",
+          waitUntil: "networkidle2",
         });
       }
     }
