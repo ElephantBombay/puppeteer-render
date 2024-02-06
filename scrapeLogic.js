@@ -1,6 +1,8 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-extra");
+const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+puppeteer.use(StealthPlugin());
 
-const scrapeLogic = async (target, res) => {
+const scrapeLogic = async (target) => {
   const browser = await puppeteer.launch({
     headless: "new",
     // headless: false, // To make sure the browser opens, set to False
@@ -17,17 +19,14 @@ const scrapeLogic = async (target, res) => {
         ? process.env.PUPPETEER_EXECUTABLE_PATH
         : puppeteer.executablePath(),
   });
+
+  let htmlContent;
   try {
     // throw new Error("Wow, why not wworking"); //Testing the error handling
     const page = await browser.newPage();
+    await page.setUserAgent(generateRandomAgent()); // Update portion of our fingerprint
 
-    // Navigate the page to a URL
     // let url = "https://bot.sannysoft.com/";
-    // let url = "https://www.trustpilot.com/review/hubspot.com";
-    // let url = "https://www.trustpilot.com/review/rentmarketplace.com";
-    // let url = "https://www.trustpilot.com/review/www.rentaplacenow.com";
-    // let url = "https://www.trustpilot.com/review/www.miel-paris.com";
-    // let url = "https://www.trustpilot.com/review/wwwasdfsdf.com";
     let url = `https://www.trustpilot.com/review/${target}`;
     console.log(url);
 
@@ -35,8 +34,7 @@ const scrapeLogic = async (target, res) => {
       waitUntil: "load",
     });
 
-    const htmlContent = await page.content();
-    console.log(htmlContent);
+    htmlContent = await page.content();
 
     let isBtnDisabled = false;
     let reviews = [];
@@ -66,16 +64,14 @@ const scrapeLogic = async (target, res) => {
       }
     }
     const data = { reviews, url: url, count: reviews.length };
+    console.log(data);
 
-    // console.log(data);
-    // res.json({ data: data });
     callback(data);
   } catch (error) {
-    // console.log(error);
-    // res.status(400).json({ data: error });
-    callback(error);
+    console.log(error, htmlContent);
+    callback({ error: error, snapshot: htmlContent });
   } finally {
-    // await browser.close();
+    await browser.close();
   }
 };
 
@@ -207,6 +203,25 @@ async function getPageReviews(page, pageReviews) {
   // console.log(pageReviews);
   return pageReviews;
 }
+
+function generateRandomAgent() {
+  // Array of random user agents
+  const userAgents = [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.1 Safari/605.1.15",
+  ];
+  // Get a random index based on the length of the user agents array
+  const randomUAIndex = Math.floor(Math.random() * userAgents.length);
+  // Return a random user agent using the index above
+  return userAgents[randomUAIndex];
+}
+
 function callback(data) {
   var requestOptions = {
     method: "POST",
@@ -224,3 +239,11 @@ function callback(data) {
 }
 
 module.exports = { scrapeLogic };
+
+// Navigate the page to a URL
+// let url = "https://bot.sannysoft.com/";
+// let url = "https://www.trustpilot.com/review/hubspot.com";
+// let url = "https://www.trustpilot.com/review/rentmarketplace.com";
+// let url = "https://www.trustpilot.com/review/www.rentaplacenow.com";
+// let url = "https://www.trustpilot.com/review/www.miel-paris.com";
+// let url = "https://www.trustpilot.com/review/wwwasdfsdf.com";
